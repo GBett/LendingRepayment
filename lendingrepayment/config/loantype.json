@@ -1,0 +1,10 @@
+{
+  "refno": "lr1234543",
+  "loantype": "lt1234543",
+  "interest": 10,
+  "datedue": "2022-11-18",
+  "active": true,
+  "overdue": false,
+  "bad_loan": false,
+  "markets": ["kenya","tanzania"]
+}
