@@ -40,7 +40,8 @@
              )
 
            (GET "/loans" request
-             ;/loans?repaid=true
+             ;/loans?msisdn=254722111111
+             (timbre/info "getting loan details ")
              (let [paramsmap (query/request-to-keywords (get-in request [:query-string]))
                    subsc (query/get-loans paramsmap)
                    ]
@@ -71,12 +72,21 @@
              (let [body (walk/keywordize-keys (:body request))
                    brrw (query/create-loan body)
                    ]
-               (json/write-str {:data {
-                                       :status 200
-                                       :title (str "Borrow")
-                                       :details brrw
-                                       }
-                                })
+               (if (= brrw "unpaid")
+                 (json/write-str {:errors {
+                                         :status 424
+                                         :title (str "Borrow Failed")
+                                         :details "Previous loan(s) not repaid"
+                                         }
+                                  })
+                 (json/write-str {:data {
+                                         :status 200
+                                         :title (str "Borrow")
+                                         :details brrw
+                                         }
+                                  })
+                 )
+
                )
              )
 
@@ -90,6 +100,23 @@
                                        :details rpy
                                        }
                                 })
+               )
+             )
+
+
+           (GET "/elevators" request
+             (let [
+
+                   ]
+               (newline)
+               (.start (Thread. query/elevator1))
+               (Thread/sleep (* 2 1000))
+
+               (newline)
+               (.start (Thread. #(query/elevator2 5)))
+               (Thread/sleep (* 2 1000))
+               (newline)
+               (println :done)
                )
              )
 

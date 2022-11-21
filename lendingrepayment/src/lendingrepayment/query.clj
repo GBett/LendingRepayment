@@ -1,10 +1,8 @@
 (ns lendingrepayment.query
   (:require  [taoensso.timbre :as timbre]
-    ; [ring.middleware.json :as middleware]
              [clojure.data.json :as json]
              [korma.db :refer :all]
              [lendingrepayment.config :as config]
-             [clj-http.client :as httpclient]
              [clj-time.coerce :as tc]
              [clojure.string :as string]
              [clojure.walk :as walk]
@@ -13,7 +11,6 @@
              [clj-time.format :as f]
              [clj-time.coerce :as tc]
              [clj-time.local :as l]
-             [clj-time.jdbc :as jd]
              [clojure.java.io :as io]
              [clojure.math.numeric-tower :as math]
              [ring.util.http-response :refer :all]
@@ -30,6 +27,27 @@
    :password config/db-pass
    :subname config/db-subname
    })
+
+
+(defn elevator1 []
+  "el1 = Print Loop from 100 to 1"
+  (loop [counter 10]
+    (when (pos? counter)
+      (do
+         (Thread/sleep 1500)
+        (println (str "el1 counter: " counter))
+        (recur (dec counter))))))
+
+
+(defn elevator2 [n]
+  "el2 = Print Loop from n to 1"
+  (loop [counter n]
+    (when (pos? counter)
+      (do
+        (Thread/sleep 1000)
+        (println (str "el2 counter: " counter))
+        (recur (dec counter))))))
+
 
 
 (defn request-to-keywords [req]
@@ -95,19 +113,22 @@
 
 (defn get-loans [body]
   (if (or (contains? body :refno) (contains? body :loanref))
-    (with-db db-connection-lendingrepay (exec-raw (format "SELECT details::text loandetails, repayments::text repayments, sum(coalesce((rpmnts->>'amount')::float, 0)) AS repayments
-                                                      FROM tbl_loans, jsonb_array_elements(repayments) with ordinality arr(rpmnts, index)
-                                                      WHERE details->>'refno'::text = '%s'
-                                                      GROUP BY 1,2, id
-                                                      ORDER BY id DESC;" (or (:refno body) (:loanref body))) :results)
+    (with-db db-connection-lendingrepay (exec-raw (format "SELECT details::text loandetails --, repayments::text repayments, sum(coalesce((rpmnts->>'amount')::float, 0)) AS repayments
+                                                            FROM tbl_loans --, jsonb_array_elements(repayments) with ordinality arr(rpmnts, index)
+                                                            WHERE details->>'refno'::text = '%s'
+                                                            GROUP BY 1 --,2
+                                                            , id
+                                                            ORDER BY id DESC;" (or (:refno body) (:loanref body))) :results)
              )
 
     (if (contains? body :msisdn)
-      (with-db db-connection-lendingrepay (exec-raw (format "SELECT details::text loandetails, repayments::text repayments, sum(coalesce((rpmnts->>'amount')::float, 0)) AS repayments
-                                                      FROM tbl_loans, jsonb_array_elements(repayments) with ordinality arr(rpmnts, index)
-                                                      WHERE details->>'msisdn'::text = '%s'
-                                                      GROUP BY 1,2, id
-                                                      ORDER BY id DESC;" (:msisdn body)) :results)
+      (with-db db-connection-lendingrepay (exec-raw (format "SELECT details::text loandetails --, repayments::text repayments
+      --, sum(coalesce((rpmnts->>'amount')::float, 0)) AS repayments
+                                                                FROM tbl_loans --, jsonb_array_elements(repayments) with ordinality arr(rpmnts, index)
+                                                                WHERE details->>'msisdn'::text = '%s'
+                                                                GROUP BY 1 --,2
+                                                                , id
+                                                                ORDER BY id DESC;" (:msisdn body)) :results)
                )
 
       )
@@ -158,8 +179,6 @@
         )
       )
     "unpaid"
-
-
     )
   )
 
@@ -193,5 +212,8 @@
     (get-loans {:loanref (:loanref body)})
     )
   )
+
+
+
 
 
