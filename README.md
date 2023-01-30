@@ -3,7 +3,7 @@
 Clojure Library for interacting with jenkins
 
 # Leiningen
-https://clojars.org/com.rallydev/clj-jenkins
+(https://github.com/GBett/LendingRepayment/blob/68fadb2544e89fa920b5ce73fe90b9764189d44a/jenkins)
 ```clojure
 [com.rallydev/clj-flowdock "0.1.5"]
 ```
