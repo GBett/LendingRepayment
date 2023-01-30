@@ -31,7 +31,7 @@ export JENKINS_API_TOKEN=<users oauth api token>
 [clj-http "0.6.3"]
 [cheshire "5.1.1"]
 ```
-[![Build Status](https://travis-ci.org/jeaye/orchestra.svg?branch=master)](https://travis-ci.org/jeaye/orchestra) [![Clojars Project](https://img.shields.io/clojars/v/orchestra.svg)](https://clojars.org/orchestra)
+
 # Orchestra : complete instrumentation for clojure.spec
 Orchestra is a Clojure(Script) library made as a drop-in replacement for
 [clojure.spec.test.alpha](https://clojure.org/guides/spec), which provides custom
